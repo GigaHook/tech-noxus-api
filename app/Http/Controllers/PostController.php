@@ -2,39 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\PostCollection;
-use App\Http\Resources\PostResource;
 use App\Models\Post;
+use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
-//TODO сделать сервис
 class PostController extends Controller
 {
+    public function __construct(
+        private PostService $postService = new PostService
+    ) {}
+
     public function index()
     {
-        return Cache::remember('posts-page-'.request('page', 1), 60 * 24, function() {
-            return (new PostCollection(Post::paginate(10)))->response();
-        });
+        return $this->postService->getAll();
     }
 
-    public function show(Post $post)
+    public function show(int $id)
     {
-        return (new PostResource($post))->response();
+        return $this->postService->get($id);
     }
 
     public function store(Request $request)
     {
-        Post::create($request->all());
+        $this->postService->create($request->all());
     }
 
     public function update(Request $request, Post $post)
     {
-
+        $this->postService->update($request->all(), $post);
     }
 
-    public function delete(Post $post)
+    public function delete(int $id)
     {
-        $post->delete();
+        $this->postService->delete($id);
     }
 }
