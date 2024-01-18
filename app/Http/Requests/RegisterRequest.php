@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'login.unique'=> 'Этот логин уже занят',
+            'login.unique' => 'Этот логин уже занят',
         ];
     }
 }

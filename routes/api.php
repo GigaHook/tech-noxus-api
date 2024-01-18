@@ -11,7 +11,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('posts', PostController::class)->middleware('auth');
 
-Route::post('/register', [UserController::class, 'createUser']);
+Route::controller(UserController::class)->group(function() {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout');
+});
 
 Route::get('/check', fn() => 'API is working properly');
 Route::get('/auth', fn() => 'You are auth\'ed')->middleware('auth');
