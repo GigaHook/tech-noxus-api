@@ -9,14 +9,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Route::apiResource('posts', PostController::class);
-
-Route::post('/posts', [PostController::class, 'store']);
+Route::apiResource('posts', PostController::class);
 
 Route::controller(UserController::class)->group(function() {
     Route::post('/register', 'register');
     Route::post('/login', 'login');
-    Route::post('/logout', 'logout');
+    Route::get('/logout', 'logout');
 });
 
 Route::get('/check', fn() => 'API is working properly');

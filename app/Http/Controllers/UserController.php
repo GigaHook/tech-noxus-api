@@ -61,6 +61,17 @@ class UserController extends Controller
     }
 
     /**
+     * вышёл отсюда
+     *
+     * @return Response
+     */
+    public function logout(): Response
+    {
+        request()->user()->currentAccessToken()->delete();
+        return response('', 204);
+    }
+
+    /**
      * Тест на перебор паролей
      * 
      * @throws \Illuminate\Validation\ValidationException
@@ -72,7 +83,6 @@ class UserController extends Controller
             throw ValidationException::withMessages([
                 'password' => 'Слишком много попыток входа, попробуйте позже',
             ]);
-            //TODO сделать event 
         }
     }
 
@@ -84,11 +94,5 @@ class UserController extends Controller
     private function throttleKey(): string
     {
         return Str::transliterate(Str::lower(request()->input('login')).'|'.request()->ip());
-    }
-
-    //TODO logout
-    public function logout()
-    {
-        //
     }
 }

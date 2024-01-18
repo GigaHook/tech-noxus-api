@@ -18,10 +18,12 @@ class PostService
     
     public function getAll(): JsonResponse
     {
-        return Cache::remember('posts-page-'.request('page', 1), 60 * 24, function() {
+        return Cache::remember('posts-page-'.request('page', 1), 60 * 4, function() {
             return (new PostCollection(Post::paginate(10)))->response();
         });
     }
+
+    //TODO Разобраться с ответами
 
     public function get(int $id): JsonResponse
     {
@@ -29,22 +31,20 @@ class PostService
             return Post::find($id);
         });
         
-        return response()->json([
-            "message" => "success",
-            "data" => new PostResource($post),
-        ], 201);
+        return (new PostResource($post))->response();
     }
 
     public function create(array $data)
     {
-        //TODO сделать кееееш
         $data['image'] = $this->fileService->uploadImage();
+
         $post = Post::create($data);
 
-        return response([
-            "message" => "success",
-            "data" => new PostResource($post),
-        ], 201);
+        Cache::rememberForever('post-'.$post->id, function() use($post) {
+            return $post;
+        });
+
+        return (new PostResource($post))->response()->setStatusCode(201);
     }
 
     public function update(array $data, Post $post): Response
