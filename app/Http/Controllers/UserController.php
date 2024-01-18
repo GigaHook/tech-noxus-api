@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -35,7 +36,7 @@ class UserController extends Controller
      * @throws \Illuminate\Validation\ValidationException
      * @return Response
      */
-    public function login(LoginRequest $request): Response
+    public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
 
@@ -53,7 +54,7 @@ class UserController extends Controller
 
         RateLimiter::clear($this->throttleKey());
 
-        return response([
+        return response()->json([
             'user' => $user,
             'token' => $user->createToken('api-token')->plainTextToken,
         ]);

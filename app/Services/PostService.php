@@ -29,21 +29,28 @@ class PostService
             return Post::find($id);
         });
         
-        return (new PostResource($post))->response();
+        return response()->json([
+            "message" => "success",
+            "data" => new PostResource($post),
+        ], 201);
     }
 
-    public function create(array $data): Response
+    public function create(array $data)
     {
         $data['image'] = $this->fileService->uploadImage();
-        Post::create($data);
-        return response('', 201);
+        $post = Post::create($data);
+
+        return response([
+            "message" => "success",
+            "data" => new PostResource($post),
+        ], 201);
     }
 
     public function update(array $data, Post $post): Response
     {
         if ($data['image']) {
-            $this->fileService->deleteImage($data['iamge']);
-            $data['iamge'] = $this->fileService->uploadImage();
+            $this->fileService->deleteImage($data['image']);
+            $data['image'] = $this->fileService->uploadImage();
         }
 
         $post->update($data);
