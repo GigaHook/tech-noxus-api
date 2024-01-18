@@ -37,6 +37,7 @@ class PostService
 
     public function create(array $data)
     {
+        //TODO сделать кееееш
         $data['image'] = $this->fileService->uploadImage();
         $post = Post::create($data);
 
