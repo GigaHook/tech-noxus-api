@@ -7,7 +7,6 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use App\Services\FileService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 class PostService 
@@ -18,36 +17,30 @@ class PostService
     
     public function getAll(): JsonResponse
     {
-        return Cache::remember('posts-page-'.request('page', 1), 60 * 4, function() {
-            return (new PostCollection(Post::paginate(10)))->response();
-        });
+        return Cache::remember('posts-page-'.request('page', 1), 60 * 6, function() {
+            return new PostCollection(Post::paginate(10));
+        })->response();
     }
-
-    //TODO Разобраться с ответами
 
     public function get(int $id): JsonResponse
     {
-        $post = Cache::rememberForever('post-'.$id, function() use($id) {
-            return Post::find($id);
-        });
-        
-        return (new PostResource($post))->response();
+        return Cache::rememberForever('post-'.$id, function() use($id) {
+            return new PostResource(Post::find($id));
+        })->response();
     }
 
-    public function create(array $data)
+    public function create(array $data): JsonResponse
     {
         $data['image'] = $this->fileService->uploadImage();
 
         $post = Post::create($data);
 
-        Cache::rememberForever('post-'.$post->id, function() use($post) {
-            return $post;
-        });
-
-        return (new PostResource($post))->response()->setStatusCode(201);
+        return Cache::rememberForever('post-'.$post->id, function() use($post) {
+            return new PostResource($post);
+        })->response()->setStatusCode(201);
     }
 
-    public function update(array $data, Post $post): Response
+    public function update(array $data, Post $post): JsonResponse
     {
         if ($data['image']) {
             $this->fileService->deleteImage($data['image']);
@@ -56,26 +49,17 @@ class PostService
 
         $post->update($data);
 
-        if (Cache::has('post-'.$post->id)) {
-            Cache::forget('post-'.$post->id);
-        }
+        Cache::forget('post-'.$post->id);
 
-        Cache::rememberForever('post-'.$post->id, function() use($post){
-            return $post;
-        });
-
-        return response('', 204);
+        return Cache::rememberForever('post-'.$post->id, function() use($post) {
+            return new PostResource($post);
+        })->response();
     }
 
-    public function delete(int $id): Response
+    public function delete(Post $post): JsonResponse
     {
-        if (Cache::has('post-'.$id)) {
-            Cache::get('post-'.$id)->delete();
-            Cache::forget('post-'.$id);
-        } else {
-            Post::find($id)->delete();
-        }
-
-        return response('', 204);
+        Cache::forget('post-'.$post->id);
+        $post->delete();
+        return response()->json()->setStatusCode(204);
     }
 }

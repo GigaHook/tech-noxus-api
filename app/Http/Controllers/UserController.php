@@ -6,11 +6,12 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\RateLimiter;
+use Laravel\Sanctum\Sanctum;
 
 class UserController extends Controller
 {
@@ -18,39 +19,42 @@ class UserController extends Controller
      * Админ добавляет другого админа
      *
      * @param RegisterRequest $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function register(RegisterRequest $request): Response
+    public function register(RegisterRequest $request): JsonResponse
     {
         User::create($request->validated());
         
-        return response([
-            'message' => 'Пользователь добавлен',
-        ], 201);
+        return response()
+            ->json(['message' => 'Пользователь добавлен'])
+            ->setStatusCode(201);
     }
 
     /**
      * Логин (только для админов)
      *
      * @param LoginRequest $request
-     * @throws \Illuminate\Validation\ValidationException
-     * @return Response
+     * @return JsonResponse
      */
     public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
 
-        $this->ensureIsNotRateLimited();
+        if (RateLimiter::tooManyAttempts($this->throttleKey(), 7)) {
+            return response()->json([
+                'errors' => ['password' => 'Слишком много попыток входа, попробуйте позже'],
+            ], 429);
+        }
 
-        $user = User::where(['login' => $data['login']])->first();
-
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (!auth()->attempt($data)) {
             RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'password' => 'Неверный логин или пароль',
-            ]);
+            return response()->json([
+                'errors' => ['password' => 'Неверный логин или пароль'],
+            ], 422);
         }
+
+        $user = User::where(['login' => $data['login']])->first();
 
         RateLimiter::clear($this->throttleKey());
 
@@ -63,27 +67,13 @@ class UserController extends Controller
     /**
      * вышёл отсюда
      *
-     * @return Response
+     * @return JsonResponse
      */
-    public function logout(): Response
+    public function logout(): JsonResponse
     {
-        request()->user()->currentAccessToken()->delete();
-        return response('', 204);
-    }
-
-    /**
-     * Тест на перебор паролей
-     * 
-     * @throws \Illuminate\Validation\ValidationException
-     * @return void
-     */
-    private function ensureIsNotRateLimited(): void
-    {
-        if (RateLimiter::tooManyAttempts($this->throttleKey(), 7)) {
-            throw ValidationException::withMessages([
-                'password' => 'Слишком много попыток входа, попробуйте позже',
-            ]);
-        }
+        //TODO неробит урод
+        auth()->user()->token('api-token')->delete();
+        return response()->json()->setStatusCode(204);
     }
 
     /**
