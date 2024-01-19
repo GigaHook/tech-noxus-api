@@ -24,8 +24,18 @@ class PostUpdateRequest extends FormRequest
     {
         return [
             'title' => 'string|max:255',
-            'text' => 'string|max:1024',
-            'image' => [File::image()->max('10mb')],
+            'text' => 'string|max:65535',
+            'image' => 'image|extensions:png,jpg,jpeg|max:512',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'image.extensions' => 'Неверный формат изображения. Доступные форматы: .png, .jpg, .jpeg',
+            'image.max' => 'Изображение слишом большое. Максимальный вес 5 Мб',
+            'title.max' => 'Слишком длинное содержание',
+            'text.max' => 'Слишком длинное содержание',
         ];
     }
 }

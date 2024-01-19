@@ -42,7 +42,7 @@ class PostService
 
     public function update(array $data, Post $post): JsonResponse
     {
-        if ($data['image']) {
+        if (isset($data['image'])) {
             $this->fileService->deleteImage($data['image']);
             $data['image'] = $this->fileService->uploadImage();
         }
