@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PostStoreRequest;
+use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\Request;
@@ -23,14 +25,14 @@ class PostController extends Controller
         return $this->postService->get($id);
     }
 
-    public function store(Request $request)
+    public function store(PostStoreRequest $request)
     {
-        return $this->postService->create($request->all());
+        return $this->postService->create($request->validated());
     }
 
-    public function update(Request $request, Post $post)
+    public function update(PostUpdateRequest $request, Post $post)
     {
-        return $this->postService->update($request->all(), $post);
+        return $this->postService->update($request->validated(), $post);
     }
 
     public function delete(Post $post)

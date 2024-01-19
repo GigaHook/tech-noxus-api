@@ -71,8 +71,7 @@ class UserController extends Controller
      */
     public function logout(): JsonResponse
     {
-        //TODO неробит урод
-        auth()->user()->token('api-token')->delete();
+        request()->user()->currentAccessToken()->delete();
         return response()->json()->setStatusCode(204);
     }
 
