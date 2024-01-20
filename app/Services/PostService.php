@@ -46,9 +46,9 @@ class PostService
             $this->fileService->deleteImage($data['image']);
             $data['image'] = $this->fileService->uploadImage();
         }
-
+        
         $post->update($data);
-
+        
         Cache::forget('post-'.$post->id);
 
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
