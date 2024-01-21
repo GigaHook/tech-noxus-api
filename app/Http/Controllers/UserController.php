@@ -15,6 +15,13 @@ use Laravel\Sanctum\Sanctum;
 
 class UserController extends Controller
 {
+    public function index(): JsonResponse
+    {
+        return response()->json([
+            'user' => request()->user(),
+        ]);
+    }
+
     /**
      * Админ добавляет другого админа
      *
@@ -42,7 +49,7 @@ class UserController extends Controller
 
         if (RateLimiter::tooManyAttempts($this->throttleKey(), 7)) {
             return response()->json([
-                'errors' => ['password' => 'Слишком много попыток входа, попробуйте позже'],
+                'error' => ['password' => 'Слишком много попыток входа, попробуйте позже'],
             ], 429);
         }
 
@@ -50,7 +57,7 @@ class UserController extends Controller
             RateLimiter::hit($this->throttleKey());
 
             return response()->json([
-                'errors' => ['password' => 'Неверный логин или пароль'],
+                'error' => ['password' => 'Неверный логин или пароль'],
             ], 422);
         }
 
