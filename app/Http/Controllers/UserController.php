@@ -6,12 +6,8 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\RateLimiter;
-use Laravel\Sanctum\Sanctum;
 
 class UserController extends Controller
 {
@@ -32,9 +28,9 @@ class UserController extends Controller
     {
         User::create($request->validated());
         
-        return response()
-            ->json(['message' => 'Пользователь добавлен'])
-            ->setStatusCode(201);
+        return response()->json([
+            'message' => 'Пользователь добавлен'
+        ], 201);
     }
 
     /**
@@ -78,8 +74,9 @@ class UserController extends Controller
      */
     public function logout(): JsonResponse
     {
-        request()->user()->currentAccessToken()->delete();
-        return response()->json()->setStatusCode(204);
+        request()->user()->tokens()->delete();
+        session()->invalidate();
+        return response()->json([], 204);
     }
 
     /**
