@@ -45,7 +45,7 @@ class UserController extends Controller
 
         if (RateLimiter::tooManyAttempts($this->throttleKey(), 7)) {
             return response()->json([
-                'error' => ['password' => 'Слишком много попыток входа, попробуйте позже'],
+                'message' => 'Слишком много попыток входа, попробуйте позже',
             ], 429);
         }
 
@@ -53,8 +53,8 @@ class UserController extends Controller
             RateLimiter::hit($this->throttleKey());
 
             return response()->json([
-                'error' => ['password' => 'Неверный логин или пароль'],
-            ], 422);
+                'message' => 'Неверный логин или пароль',
+            ], 401);
         }
 
         $user = User::where(['login' => $data['login']])->first();
@@ -86,6 +86,6 @@ class UserController extends Controller
      */
     private function throttleKey(): string
     {
-        return Str::transliterate(Str::lower(request()->input('login')).'|'.request()->ip());
+        return Str::transliterate(request()->ip());
     }
 }

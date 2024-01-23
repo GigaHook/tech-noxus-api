@@ -16,4 +16,4 @@ Route::middleware('auth:sanctum')->group(function() {
 });
 
 Route::any('/check', fn() => 'API is working properly');
-Route::any('/auth', fn() => 'You are auth\'ed')->middleware('auth:sanctum');
+Route::any('/authcheck', fn() => 'You are auth\'ed')->middleware('auth:sanctum');

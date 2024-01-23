@@ -13,8 +13,7 @@ class RedirectIfAuthenticated
     {
         if ($request->user()) {
             return response()->json([
-                'error' => 'Доступно только неавторизованным пользователям',
-                'user' => $request->user(),
+                'message' => 'Доступно только неавторизованным пользователям',
             ], 422);
         }
 
