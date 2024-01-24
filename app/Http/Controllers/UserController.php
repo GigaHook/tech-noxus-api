@@ -43,7 +43,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
 
-        if (RateLimiter::tooManyAttempts($this->throttleKey(), 7)) {
+        if (RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return response()->json([
                 'message' => 'Слишком много попыток входа, попробуйте позже',
             ], 429);
