@@ -49,7 +49,9 @@ class PostService
         
         $post->update($data);
         
+        info(Cache::get('post-'.$post->id));
         Cache::forget('post-'.$post->id);
+        info(Cache::get('post-'.$post->id));
 
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
             return new PostResource($post);
@@ -58,7 +60,9 @@ class PostService
 
     public function delete(Post $post): JsonResponse
     {
+        info(Cache::get('post-'.$post->id));
         Cache::forget('post-'.$post->id);
+        info(Cache::get('post-'.$post->id));
         $post->delete();
         return response()->json()->setStatusCode(204);
     }
