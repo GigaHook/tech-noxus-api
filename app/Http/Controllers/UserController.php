@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -74,9 +75,9 @@ class UserController extends Controller
      */
     public function logout(): JsonResponse
     {
-        request()->user()->tokens()->delete();
+        request()->user()?->tokens()?->delete();
         session()->invalidate();
-        return response()->json([], 204);
+        return response()->json();
     }
 
     /**

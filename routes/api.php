@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('posts', PostController::class);
 
 Route::post('/login', [UserController::class, 'login'])->middleware('guest');
-Route::get('/user', [UserController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/logout', [UserController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('/register', [UserController::class, 'register']);
-    Route::get('/logout', [UserController::class, 'logout']);
+    Route::get('/user', [UserController::class, 'index']); //idk
 });
 
 Route::any('/check', fn() => 'API is working properly');
