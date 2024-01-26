@@ -4,12 +4,12 @@ namespace App\Services;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 
 class FileService 
 {
-    public function uploadImage(): string
+    public function uploadImage(UploadedFile $image): string
     {
-        $image = request()->file('image');
         $name = Str::uuid().'.'.$image->getClientOriginalExtension();
         Storage::disk('public')->put($name, file_get_contents($image));
         return $name;

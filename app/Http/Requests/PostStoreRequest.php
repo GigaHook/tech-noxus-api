@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\File;
+use App\Services\FileService;
 
 class PostStoreRequest extends FormRequest
 {
@@ -37,5 +37,15 @@ class PostStoreRequest extends FormRequest
             'title.max' => 'Слишком длинное содержание',
             'text.max' => 'Слишком длинное содержание',
         ];
+    }
+
+    /**
+     * Загружает файл после валидации запроса
+     */
+    protected function passedValidation(FileService $fileService): void
+    {
+        $this->replace([
+            'image' => $fileService->uploadImage($this->file('image'))
+        ]);
     }
 }
