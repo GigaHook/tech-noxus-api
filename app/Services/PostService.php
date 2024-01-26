@@ -17,7 +17,7 @@ class PostService
     
     public function getAll(): JsonResponse
     {
-        return Cache::remember('posts-page-'.request('page', 1), 60 * 6, function() {
+        return Cache::rememberForever('posts-page-'.request('page', 1), function() {
             return new PostCollection(Post::paginate(10));
         })->response();
     }
@@ -35,6 +35,8 @@ class PostService
 
         $post = Post::create($data);
 
+        $this->forgetCachedPages();
+
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
             return new PostResource($post);
         })->response()->setStatusCode(201);
@@ -48,6 +50,8 @@ class PostService
         }
         
         $post->update($data);
+
+        $this->forgetCachedPages();
         
         Cache::forget('post-'.$post->id);
 
@@ -58,8 +62,21 @@ class PostService
 
     public function delete(Post $post): JsonResponse
     {
+        $this->forgetCachedPages();
+
         Cache::forget('post-'.$post->id);
+
         $post->delete();
-        return response()->json()->setStatusCode(204);
+
+        return response()->json();
+    }
+
+    private function forgetCachedPages(): void
+    {
+        for ($i = 1; true; $i++) {
+            if (Cache::has("posts-page-".$i)) {
+                Cache::forget("posts-page-".$i);
+            } else break;
+        }
     }
 }
