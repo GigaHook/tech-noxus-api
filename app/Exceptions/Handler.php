@@ -3,7 +3,6 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Session\TokenMismatchException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -24,14 +23,6 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function(TokenMismatchException $e) {
-            request()->user()?->tokens()?->delete();
-
-            return response()->json([
-                'message' => 'Время сессии истекло.'
-            ], 403);
-        });
-
         $this->reportable(function (Throwable $e) {
             //
         });

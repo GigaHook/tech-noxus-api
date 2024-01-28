@@ -10,7 +10,7 @@ trait InteractsWithFileStorage
 {
     function storeImage(UploadedFile $image): string
     {
-        return basename($image->storePubliclyAs('images', Str::uuid().'.'.$image->extension()));
+        return basename($image->storePubliclyAs('public/images', Str::uuid().'.'.$image->extension()));
     }
 
     function deleteImage(string $image): void

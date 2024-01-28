@@ -21,6 +21,6 @@ class PostResource extends JsonResource
             'text' => $this->text,
             'image' => asset("storage/images/".$this->image),
             'date' => $this->created_at->format('d-m-Y'),
-        ];;
+        ];
     }
 }

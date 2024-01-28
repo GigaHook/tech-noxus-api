@@ -6,9 +6,9 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
-use Throwable;
 
 class UserController extends Controller
 {
@@ -50,15 +50,15 @@ class UserController extends Controller
             ], 429);
         }
 
-        if (!auth()->attempt($data)) {
+        $user = User::where(['login' => $data['login']])->first();
+
+        if (!$user || !Hash::check($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             return response()->json([
                 'message' => 'Неверный логин или пароль',
             ], 401);
         }
-
-        $user = User::where(['login' => $data['login']])->first();
 
         RateLimiter::clear($this->throttleKey());
 
@@ -75,8 +75,7 @@ class UserController extends Controller
      */
     public function logout(): JsonResponse
     {
-        request()->user()?->tokens()?->delete();
-        session()->invalidate();
+        auth()->user()->tokens()->first()->delete();
         return response()->json();
     }
 
