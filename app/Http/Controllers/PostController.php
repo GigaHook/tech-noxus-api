@@ -6,37 +6,35 @@ use App\Http\Requests\PostStoreRequest;
 use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
     public function __construct(
-        private PostService $postService = new PostService
+        private PostService $service = new PostService
     ) {}
 
     public function index()
     {
-        return $this->postService->getAll();
+        return $this->service->getAll();
     }
 
     public function show(int $id)
     {
-        return $this->postService->get($id);
+        return $this->service->get($id);
     }
 
     public function store(PostStoreRequest $request)
     {
-        return $this->postService->create($request->validated());
+        return $this->service->create($request->safe()->except(['image']));
     }
 
     public function update(PostUpdateRequest $request, Post $post)
     {
-        return $this->postService->update($request->validated(), $post);
+        return $this->service->update($request->safe()->except(['image']), $post);
     }
 
     public function delete(Post $post)
     {
-        return $this->postService->delete($post);
+        return $this->service->delete($post);
     }
 }

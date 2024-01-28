@@ -19,7 +19,7 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'text' => $this->text,
-            'image' => asset("storage/$this->image"),
+            'image' => asset("storage/images/".$this->image),
             'date' => $this->created_at->format('d-m-Y'),
         ];;
     }

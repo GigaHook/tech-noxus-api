@@ -7,9 +7,17 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+use App\Traits\InteractsWithFileStorage;
 
 class PostService 
 {
+    use InteractsWithFileStorage;
+
+    /**
+     * Кэш очищается в обсервере
+     *
+     * @return JsonResponse
+     */
     public function getAll(): JsonResponse
     {
         return Cache::rememberForever('posts-page-'.request('page', 1), function() {
@@ -26,8 +34,11 @@ class PostService
 
     public function create(array $data): JsonResponse
     {
-        $post = Post::create($data);
-        $this->forgetCachedPages();
+        $post = Post::create([
+            ...$data,
+            'image' => $this->storeImage(request()->file('image')),
+        ]);
+
 
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
             return new PostResource($post);
@@ -36,14 +47,14 @@ class PostService
 
     public function update(array $data, Post $post): JsonResponse
     {
-        //TODO
-        //if (isset($data['image'])) {
-        //    $this->fileService->deleteImage($data['image']);
-        //    $data['image'] = $this->fileService->uploadImage();
-        //}
+        $image = request()->file('image');
         
+        if ($image) {
+            $data['image'] = $this->updateImage($image, $post->image);
+        }
+
         $post->update($data);
-        $this->forgetCachedPages();
+
         Cache::forget('post-'.$post->id);
 
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
@@ -53,23 +64,10 @@ class PostService
 
     public function delete(Post $post): JsonResponse
     {
-        $this->forgetCachedPages();
-        //$this->fileService->deleteImage($post->image);
+        $this->deleteImage($post->image);
         Cache::forget('post-'.$post->id);
         $post->delete();
 
         return response()->json();
-    }
-
-    /**
-     * Метод забывает кэшированные страницы, проверяя их существование и затем удаляя их из кэша
-     */
-    private function forgetCachedPages(): void
-    {
-        for ($i = 1; true; $i++) {
-            if (Cache::has("posts-page-".$i)) {
-                Cache::forget("posts-page-".$i);
-            } else break;
-        }
     }
 }

@@ -12,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(FileService::class, fn($app) => new FileService);
+        
     }
 
     /**

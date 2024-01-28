@@ -25,7 +25,7 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->renderable(function(TokenMismatchException $e) {
-            info(auth()->user());
+            request()->user()?->tokens()?->delete();
 
             return response()->json([
                 'message' => 'Время сессии истекло.'
