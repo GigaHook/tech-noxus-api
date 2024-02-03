@@ -14,7 +14,7 @@ Route::post('/login', [UserController::class, 'login'])->middleware('guest');
 Route::middleware('auth:sanctum')->group(function() {
     Route::post('/register', [UserController::class, 'register']);
     Route::get('/logout', [UserController::class, 'logout']);
-    Route::get('/user', [UserController::class, 'index']); //idk
+    Route::post('/user', [UserController::class, 'index']); //idk
 });
 
 //TODO убрать в проде
