@@ -11,7 +11,7 @@ class RedirectIfAuthenticated
 {
     public function handle(Request $request, Closure $next)//: Response|JsonResponse
     {
-        if ($request->user()) {
+        if ($request->user() && !$request->is('login')) {
             return response()->json([
                 'message' => 'Доступно только неавторизованным пользователям',
             ], 422);

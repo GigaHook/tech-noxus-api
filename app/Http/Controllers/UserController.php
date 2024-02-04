@@ -6,8 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -51,7 +50,7 @@ class UserController extends Controller
             ], 429);
         }
 
-        if (!Auth::attempt($data)) {
+        if (!auth()->attempt($data)) {
             RateLimiter::hit($this->throttleKey());
 
             return response()->json([
@@ -59,23 +58,12 @@ class UserController extends Controller
             ], 401);
         }
 
-        /*$user = User::where(['login' => $data['login']])->first();
-
-        if (!$user || !Hash::check($data['password'], $user->password)) {
-            RateLimiter::hit($this->throttleKey());
-
-            return response()->json([
-                'message' => 'Неверный логин или пароль',
-            ], 401);
-        }*/
-
-        $user = Auth::user();
-
         RateLimiter::clear($this->throttleKey());
 
+        $request->session()->regenerate();
+
         return response()->json([
-            'user' => $user,
-            'token' => $user->createToken('api-token')->plainTextToken,
+            'user' => auth()->user(),
         ]);
     }
 
@@ -84,9 +72,11 @@ class UserController extends Controller
      *
      * @return JsonResponse
      */
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
-        auth()->user()->tokens()->first()->delete();
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return response()->json();
     }
 
