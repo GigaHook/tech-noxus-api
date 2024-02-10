@@ -19,7 +19,7 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'text' => Str::limit($this->text, 360),
+            'text' => Str::limit($this->text, 300),
             'fulltext' => $this->text,
             'image' => asset("storage/images/".$this->image),
             'date' => $this->created_at->diffForHumans(),
