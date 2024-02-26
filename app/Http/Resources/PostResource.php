@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostResource extends JsonResource
@@ -17,12 +16,13 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'text' => Str::limit($this->text, 300),
+            'id'       => $this->id,
+            'title'    => $this->title,
+            'text'     => Str::limit($this->text, 300),
             'fulltext' => $this->text,
-            'image' => asset("storage/images/".$this->image),
-            'date' => $this->created_at->diffForHumans(),
+            'image'    => asset("storage/images/".$this->images()->first()->name), //TODO убрать
+            'images'   => $this->images()->pluck('name')->map(fn($name) => "storage/images/".$name),
+            'date'     => $this->created_at->diffForHumans(),
         ];
     }
 }

@@ -6,7 +6,10 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-trait InteractsWithFileStorage
+/**
+ * Отвечает за хранение и управление файлами изображений
+ */
+trait HasMedia
 {
     function storeImage(UploadedFile $image): string
     {

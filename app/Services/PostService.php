@@ -7,21 +7,25 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
-use App\Traits\InteractsWithFileStorage;
+use App\Traits\HasMedia;
 
+/**
+ * Кеш автоматом очищается в обсервере
+ */
 class PostService 
 {
-    use InteractsWithFileStorage;
+    use HasMedia;
 
-    /**
-     * Кэш очищается в обсервере
-     *
-     * @return JsonResponse
-     */
+    public function __construct(
+        ImageService $imageService = new ImageService,
+    ) {}
+
     public function getAll(): JsonResponse
     {
         return Cache::rememberForever('posts-page-'.request('page', 1), function() {
-            return new PostCollection(Post::paginate(10));
+            return new PostCollection(
+                Post::query()->orderBy('created_at', 'desc')->paginate(10)
+            );
         })->response();
     }
 
@@ -34,11 +38,14 @@ class PostService
 
     public function create(array $data): JsonResponse
     {
-        $post = Post::create([
-            ...$data,
-            'image' => $this->storeImage(request()->file('image')),
-        ]);
+        //$post = Post::create([
+        //    ...$data,
+        //    'image' => $this->storeImage(request()->file('image')),
+        //]);
 
+        $post = Post::create($data);
+
+        //TODO посмотреть что будет в масива images
 
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
             return new PostResource($post);
