@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->integer('imageable_id');
-            $table->string('imageable_type');
-            $table->timestamps();
+        Schema::table('posts', function (Blueprint $table) {
+            $table->string('image')->nullable()->change();
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images');
+        Schema::table('posts', function (Blueprint $table) {
+            //
+        });
     }
 };

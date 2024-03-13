@@ -6,7 +6,6 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -21,9 +20,6 @@ class UserController extends Controller
 
     /**
      * Админ добавляет другого админа
-     *
-     * @param RegisterRequest $request
-     * @return JsonResponse
      */
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -36,29 +32,27 @@ class UserController extends Controller
 
     /**
      * Логин (только для админов)
-     *
-     * @param LoginRequest $request
-     * @return JsonResponse
      */
     public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $throttleKey = Str::transliterate($request->ip());
 
-        if (RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             return response()->json([
                 'message' => 'Слишком много попыток входа, попробуйте позже',
             ], 429);
         }
 
         if (!auth()->attempt($data)) {
-            RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($throttleKey);
 
             return response()->json([
                 'message' => 'Неверный логин или пароль',
-            ], 401);
+            ], 422);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        RateLimiter::clear($throttleKey);
 
         $request->session()->regenerate();
 
@@ -69,24 +63,13 @@ class UserController extends Controller
 
     /**
      * вышёл отсюда
-     *
-     * @return JsonResponse
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
         auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return response()->json();
-    }
+        session()->invalidate();
+        session()->regenerateToken();
 
-    /**
-     * Ключ для рейтлимитера
-     *
-     * @return string
-     */
-    private function throttleKey(): string
-    {
-        return Str::transliterate(request()->ip());
+        return response()->json();
     }
 }

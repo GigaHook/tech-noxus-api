@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Facades\Hash;
 
 class AddAdmin extends Seeder
 {
@@ -15,7 +14,7 @@ class AddAdmin extends Seeder
     {
         User::create([
             'login' => 'asdzxc',
-            'password' => Hash::make('asdzxc'),
+            'password' => bcrypt('asdzxc'),
         ]);
     }
 }

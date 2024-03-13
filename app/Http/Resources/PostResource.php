@@ -20,8 +20,7 @@ class PostResource extends JsonResource
             'title'    => $this->title,
             'text'     => Str::limit($this->text, 300),
             'fulltext' => $this->text,
-            'image'    => asset("storage/images/".$this->images()->first()->name), //TODO убрать
-            'images'   => $this->images()->pluck('name')->map(fn($name) => "storage/images/".$name),
+            'image'    => asset("storage/".$this->image),
             'date'     => $this->created_at->diffForHumans(),
         ];
     }

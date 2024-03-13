@@ -24,8 +24,7 @@ class PostStoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:100',
             'text' => 'required|string|max:65535',
-            //'image' => 'required|extensions:png,jpg,jpeg|max:5000'
-            'images' => 'required|array',
+            'images' => 'required|array|min:1|max:10',
             'images.*' => 'required|extensions:png,jpg,jpeg|max:5000',
         ];
     }

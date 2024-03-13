@@ -7,19 +7,9 @@ use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
-use App\Traits\HasMedia;
 
-/**
- * Кеш автоматом очищается в обсервере
- */
 class PostService 
 {
-    use HasMedia;
-
-    public function __construct(
-        ImageService $imageService = new ImageService,
-    ) {}
-
     public function getAll(): JsonResponse
     {
         return Cache::rememberForever('posts-page-'.request('page', 1), function() {
@@ -38,15 +28,10 @@ class PostService
 
     public function create(array $data): JsonResponse
     {
-        //$post = Post::create([
-        //    ...$data,
-        //    'image' => $this->storeImage(request()->file('image')),
-        //]);
-
         $post = Post::create($data);
 
-        //TODO посмотреть что будет в масива images
-
+        $post->storeImage(request()->file('image'));
+        
         return Cache::rememberForever('post-'.$post->id, function() use($post) {
             return new PostResource($post);
         })->response()->setStatusCode(201);
@@ -54,13 +39,9 @@ class PostService
 
     public function update(array $data, Post $post): JsonResponse
     {
-        $image = request()->file('image');
-        
-        if ($image) {
-            $data['image'] = $this->updateImage($image, $post->image);
-        }
-
         $post->update($data);
+
+        request()->hasFile('image') && $post->updateImage(request()->file('image'));
 
         Cache::forget('post-'.$post->id);
 
@@ -71,10 +52,10 @@ class PostService
 
     public function delete(Post $post): JsonResponse
     {
-        $this->deleteImage($post->image);
-        Cache::forget('post-'.$post->id);
         $post->delete();
+        $post->deleteImage();
+        Cache::forget('post-'.$post->id);
 
-        return response()->json();
+        return response()->json()->setStatusCode(204);
     }
 }
