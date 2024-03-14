@@ -5,57 +5,52 @@ namespace App\Services;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 
 class PostService 
 {
-    public function getAll(): JsonResponse
+    public function getAll(): PostCollection
     {
-        return Cache::rememberForever('posts-page-'.request('page', 1), function() {
+        $postCollection = Cache::rememberForever('posts-page-'.request('page', 1), function() {
             return new PostCollection(
                 Post::query()->orderBy('created_at', 'desc')->paginate(10)
             );
-        })->response();
+        });
+
+        return $postCollection;
     }
 
-    public function get(int $id): JsonResponse
+    public function get(int $id): PostResource
     {
-        return Cache::rememberForever('post-'.$id, function() use($id) {
-            return new PostResource(Post::find($id));
-        })->response();
+        return Cache::rememberForever('post-'.$id, fn() => new PostResource(Post::find($id)));
     }
 
-    public function create(array $data): JsonResponse
+    public function create(array $data, UploadedFile $image): PostResource
     {
         $post = Post::create($data);
-
-        $post->storeImage(request()->file('image'));
+        $post->storeImage($image);
         
-        return Cache::rememberForever('post-'.$post->id, function() use($post) {
-            return new PostResource($post);
-        })->response()->setStatusCode(201);
+        return tap(new PostResource($post), function($resource) {
+            Cache::forever('post-'.$resource->instance->id, $resource);
+        });
     }
 
-    public function update(array $data, Post $post): JsonResponse
+    public function update(Post $post, array $data, ?UploadedFile $image): PostResource
     {
         $post->update($data);
+        $image && $post->updateImage($image);
 
-        request()->hasFile('image') && $post->updateImage(request()->file('image'));
-
-        Cache::forget('post-'.$post->id);
-
-        return Cache::rememberForever('post-'.$post->id, function() use($post) {
-            return new PostResource($post);
-        })->response();
+        return tap(new PostResource($post), function($resource) {
+            Cache::forget('post-'.$resource->instance->id);
+            Cache::forever('post-'.$resource->instance->id, $resource);
+        });
     }
 
-    public function delete(Post $post): JsonResponse
+    public function delete(Post $post): void
     {
         $post->delete();
         $post->deleteImage();
         Cache::forget('post-'.$post->id);
-
-        return response()->json()->setStatusCode(204);
     }
 }

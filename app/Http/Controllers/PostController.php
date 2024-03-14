@@ -6,35 +6,49 @@ use App\Http\Requests\PostStoreRequest;
 use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
-    public function __construct(
-        private PostService $service = new PostService
-    ) {}
+    public function __construct(private PostService $postService) {}
 
-    public function index()
+    public function index(): JsonResponse
     {
-        return $this->service->getAll();
+        return $this->postService->getAll()->response();
     }
 
-    public function show(int $id)
+    public function show(int $id): JsonResponse
     {
-        return $this->service->get($id);
+        return $this->postService->get($id)->response();
     }
 
-    public function store(PostStoreRequest $request)
+    public function store(PostStoreRequest $request): JsonResponse
     {
-        return $this->service->create($request->safe()->except(['image']));
+        $postResource = $this->postService->create(
+            $request->validated(),
+            $request->file('image')
+        );
+
+        return $postResource->response()->setStatusCode(201);
     }
 
-    public function update(PostUpdateRequest $request, Post $post)
+    public function update(PostUpdateRequest $request, Post $post): JsonResponse
     {
-        return $this->service->update($request->safe()->except(['image']), $post);
+        $postResource = $this->postService->update(
+            $post,
+            $request->validated(),
+            $request->file('image')
+        );
+
+        return $postResource->response();
     }
 
-    public function delete(Post $post)
+    public function delete(Post $post): JsonResponse
     {
-        return $this->service->delete($post);
+        $this->postService->delete($post);
+        
+        return response()->json()->setStatusCode(204);
     }
 }

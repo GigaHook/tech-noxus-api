@@ -23,21 +23,18 @@ class PostStoreRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:100',
-            'text' => 'required|string|max:65535',
-            'images' => 'required|array|min:1|max:10',
-            'images.*' => 'required|extensions:png,jpg,jpeg|max:5000',
+            'text'  => 'required|string|max:65535',
+            'image' => 'required|image|extensions:png,jpg,jpeg|max:5000',
         ];
     }
 
     public function messages(): array
     {
         return [
-            //'image.extensions' => 'Неверный формат изображения. Доступные форматы: .png, .jpg, .jpeg',
-            //'image.max' => 'Изображение слишом большое. Максимальный вес 5Мб',
+            'image.extensions' => 'Доступные форматы: .png, .jpg, .jpeg',
+            'image.max' => 'Изображение слишом большое. Максимальный вес 5Мб',
             'title.max' => 'Слишком длинное содержание',
             'text.max' => 'Слишком длинное содержание',
-            'images.*.max' => 'Одно из изображение слишом большое. Максимальный вес 5Мб',
-            'images.*.extensions' => 'Неверный формат изображений. Доступные форматы: .png, .jpg, .jpeg'
         ];
     }
 }
