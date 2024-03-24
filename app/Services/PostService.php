@@ -30,9 +30,10 @@ class PostService
     {
         $post = Post::create($data);
         $post->storeImage($image);
-        
+
         return tap(new PostResource($post), function($resource) {
-            Cache::forever('post-'.$resource->instance->id, $resource);
+            //return response()->json(['data' => $resource])->setStatusCode(500);
+            Cache::forever('post-'.$resource->id, $resource);
         });
     }
 
@@ -42,8 +43,8 @@ class PostService
         $image && $post->updateImage($image);
 
         return tap(new PostResource($post), function($resource) {
-            Cache::forget('post-'.$resource->instance->id);
-            Cache::forever('post-'.$resource->instance->id, $resource);
+            Cache::forget('post-'.$resource->id);
+            Cache::forever('post-'.$resource->id, $resource);
         });
     }
 

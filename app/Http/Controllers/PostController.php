@@ -7,8 +7,6 @@ use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -28,7 +26,7 @@ class PostController extends Controller
     {
         $postResource = $this->postService->create(
             $request->validated(),
-            $request->file('image')
+            $request->file('image'),
         );
 
         return $postResource->response()->setStatusCode(201);
@@ -39,7 +37,7 @@ class PostController extends Controller
         $postResource = $this->postService->update(
             $post,
             $request->validated(),
-            $request->file('image')
+            $request->file('image'),
         );
 
         return $postResource->response();

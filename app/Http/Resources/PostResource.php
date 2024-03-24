@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostResource extends JsonResource
@@ -20,7 +21,7 @@ class PostResource extends JsonResource
             'title'    => $this->title,
             'text'     => Str::limit($this->text, 300),
             'fulltext' => $this->text,
-            'image'    => asset("storage/".$this->image),
+            'image'    => asset('storage/'.$this->image),
             'date'     => $this->created_at->diffForHumans(),
         ];
     }

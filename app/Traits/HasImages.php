@@ -9,7 +9,7 @@ trait HasImages
 {
     public function storeImage(UploadedFile $imageFile): void
     {
-        $this->update(['image' => $imageFile->storePublicly('images')]);
+        $this->update(['image' => $imageFile->store(options: 'public')]);
     }
 
     public function deleteImage(): void
