@@ -5,6 +5,9 @@ namespace App\Traits;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Для моделей, которые имеют изображения
+ */
 trait HasImages
 {
     public function storeImage(UploadedFile $imageFile): void

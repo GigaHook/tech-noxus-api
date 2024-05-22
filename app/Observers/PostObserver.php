@@ -52,10 +52,9 @@ class PostObserver
      */
     private function forgetCachedPages(): void
     {
-        for ($i = 1; true; $i++) {
-            if (Cache::has("posts-page-".$i)) {
-                Cache::forget("posts-page-".$i);
-            } else break;
+        $page = 1;
+        while (Cache::has("posts-page-".$page)) {
+            Cache::forget("posts-page-".$page++);
         }
     }
 }

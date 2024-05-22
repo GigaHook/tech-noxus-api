@@ -19,7 +19,7 @@ class UserController extends Controller
     }
 
     /**
-     * Админ добавляет другого админа
+     * unused :(
      */
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -38,7 +38,7 @@ class UserController extends Controller
         $data = $request->validated();
         $throttleKey = Str::transliterate($request->ip());
 
-        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 7)) {
             return response()->json([
                 'message' => 'Слишком много попыток входа, попробуйте позже',
             ], 429);

@@ -32,7 +32,6 @@ class PostService
         $post->storeImage($image);
 
         return tap(new PostResource($post), function($resource) {
-            //return response()->json(['data' => $resource])->setStatusCode(500);
             Cache::forever('post-'.$resource->id, $resource);
         });
     }
