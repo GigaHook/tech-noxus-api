@@ -50,7 +50,9 @@ class PostService
     public function delete(Post $post): void
     {
         $post->delete();
-        $post->deleteImage();
         Cache::forget('post-'.$post->id);
+        if (is_null(Post::firstWhere('image', $post->iamge))) {
+            $post->deleteImage();
+        }
     }
 }

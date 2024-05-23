@@ -43,7 +43,7 @@ class PostController extends Controller
         return $postResource->response();
     }
 
-    public function delete(Post $post): JsonResponse
+    public function destroy(Post $post): JsonResponse
     {
         $this->postService->delete($post);
         
