@@ -22,9 +22,9 @@ class PostStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:100',
-            'text'  => 'required|string|max:65535',
-            'image' => 'required|image|extensions:png,jpg,jpeg|max:5000',
+            'title' => 'string|max:100',
+            'text'  => 'string|max:65535',
+            'image' => 'image|extensions:png,jpg,jpeg|max:5000',
         ];
     }
 

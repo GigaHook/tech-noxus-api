@@ -39,7 +39,10 @@ class PostService
     public function update(Post $post, array $data, ?UploadedFile $image): PostResource
     {
         $post->update($data);
-        $image && $post->updateImage($image);
+
+        if ($image) {
+            $post->updateImage($image);
+        }
 
         return tap(new PostResource($post), function($resource) {
             Cache::forget('post-'.$resource->id);
@@ -51,6 +54,7 @@ class PostService
     {
         $post->delete();
         Cache::forget('post-'.$post->id);
+
         if (is_null(Post::firstWhere('image', $post->iamge))) {
             $post->deleteImage();
         }

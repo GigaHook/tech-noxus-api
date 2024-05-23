@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\File;
 
 class PostUpdateRequest extends FormRequest
 {
@@ -22,10 +21,11 @@ class PostUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        //TODO неробит урод
         return [
-            'title' => 'string|max:255',
-            'text'  => 'string|max:65535',
-            'image' => 'image|extensions:png,jpg,jpeg|max:512',
+            'title' => 'nullable|string|max:255',
+            'text'  => 'nullable|string|max:65535',
+            'image' => 'nullable|image|extensions:png,jpg,jpeg|max:512',
         ];
     }
 

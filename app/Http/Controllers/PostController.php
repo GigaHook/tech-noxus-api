@@ -32,11 +32,11 @@ class PostController extends Controller
         return $postResource->response()->setStatusCode(201);
     }
 
-    public function update(PostUpdateRequest $request, Post $post): JsonResponse
+    public function update(Post $post, PostUpdateRequest $request): JsonResponse
     {
         $postResource = $this->postService->update(
             $post,
-            $request->validated(),
+            $request->all(),
             $request->file('image'),
         );
 
