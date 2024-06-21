@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -18,21 +19,15 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * unused :(
-     */
     public function register(RegisterRequest $request): JsonResponse
     {
         User::create($request->validated());
         
         return response()->json([
             'message' => 'Пользователь добавлен'
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
-    /**
-     * Логин (только для админов)
-     */
     public function login(LoginRequest $request): JsonResponse
     {
         $data = $request->validated();
@@ -41,7 +36,7 @@ class UserController extends Controller
         if (RateLimiter::tooManyAttempts($throttleKey, 7)) {
             return response()->json([
                 'message' => 'Слишком много попыток входа, попробуйте позже',
-            ], 429);
+            ], Response::HTTP_TOO_MANY_REQUESTS);
         }
 
         if (!auth()->attempt($data)) {
@@ -49,7 +44,7 @@ class UserController extends Controller
 
             return response()->json([
                 'message' => 'Неверный логин или пароль',
-            ], 422);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         RateLimiter::clear($throttleKey);
@@ -61,15 +56,12 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * вышёл отсюда
-     */
     public function logout(): JsonResponse
     {
         auth()->logout();
         session()->invalidate();
         session()->regenerateToken();
 
-        return response()->json();
+        return response()->json([], Response::HTTP_NO_CONTENT);
     }
 }

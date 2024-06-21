@@ -55,8 +55,8 @@ class PostService
         $post->delete();
         Cache::forget('post-'.$post->id);
 
-        if (is_null(Post::firstWhere('image', $post->iamge))) {
-            $post->deleteImage();
-        }
+        if (Post::firstWhere('image', $post->iamge)) return;
+        
+        $post->deleteImage();
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
 {
@@ -29,14 +30,14 @@ class PostController extends Controller
             $request->file('image'),
         );
 
-        return $postResource->response()->setStatusCode(201);
+        return $postResource->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
-    public function update(Post $post, PostUpdateRequest $request): JsonResponse
-    {
+    public function update(PostUpdateRequest $request, Post $post): JsonResponse
+    {   
         $postResource = $this->postService->update(
             $post,
-            $request->all(),
+            $request->validated(),
             $request->file('image'),
         );
 
@@ -47,6 +48,6 @@ class PostController extends Controller
     {
         $this->postService->delete($post);
         
-        return response()->json()->setStatusCode(204);
+        return response()->json(status: Response::HTTP_NO_CONTENT);
     }
 }

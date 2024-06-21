@@ -21,11 +21,10 @@ class PostUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        //TODO неробит урод
         return [
-            'title' => 'nullable|string|max:255',
-            'text'  => 'nullable|string|max:65535',
-            'image' => 'nullable|image|extensions:png,jpg,jpeg|max:512',
+            'title' => 'string|max:100',
+            'text'  => 'string|max:65535',
+            'image' => 'image|extensions:png,jpg,jpeg|max:5000',
         ];
     }
 
