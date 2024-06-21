@@ -13,8 +13,8 @@ class AddAdmin extends Seeder
     public function run(): void
     {
         User::create([
-            'login' => 'asdzxc',
-            'password' => bcrypt('asdzxc'),
+            'login' => 'NoxusAdmin',
+            'password' => bcrypt('NoxusAdmin$$$'),
         ]);
     }
 }
